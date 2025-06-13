@@ -1,6 +1,8 @@
 # Authenticated Map App - Route Planner
 
 A beautiful React application that allows authenticated users to plan routes between two locations with real-time mapping and directions.
+# Deployment link
+ - https://route-mapper-psi.vercel.app/
 
 ## Features
 
@@ -40,22 +42,22 @@ npm run dev
 
 ```
 src/
-├── components/          # Reusable components
-│   ├── LocationInput.jsx    # Smart location input with autocomplete
-│   ├── MapComponent.jsx     # Main map with routing functionality
-│   ├── Navbar.jsx          # Navigation bar
-│   └── ProtectedRoute.jsx  # Route protection wrapper
-├── contexts/           # React contexts
-│   └── AuthContext.jsx     # Authentication context
-├── firebase/           # Firebase configuration
-│   └── config.js          # Firebase setup
-├── pages/              # Page components
-│   ├── Dashboard.jsx      # Main dashboard with map
-│   ├── Login.jsx         # Login page
-│   └── Register.jsx      # Registration page
-├── App.jsx             # Main app component
-├── App.css            # Styles
-└── main.jsx           # Entry point
+├── components/         
+│   ├── LocationInput.jsx    
+│   ├── MapComponent.jsx    
+│   ├── Navbar.jsx          
+│   └── ProtectedRoute.jsx  
+├── contexts/           
+│   └── AuthContext.jsx     
+├── firebase/           
+│   └── config.js         
+├── pages/             
+│   ├── Dashboard.jsx      
+│   ├── Login.jsx         
+│   └── Register.jsx     
+├── App.jsx            
+├── App.css            
+└── main.jsx           
 ```
 
 ## Key Features Explained
@@ -98,13 +100,13 @@ src/
 - **React Router** - Client-side routing
 - **CSS Grid & Flexbox** - Responsive layouts
 
-## Deployment Considerations
 
-For production deployment:
 
 1. **Environment Variables**: Set up proper environment variables
 2. **API Keys**: Restrict API keys to your domain
 3. **Firebase Rules**: Configure proper security rules
 4. **Build Optimization**: Use `npm run build` for production build
 5. **Hosting**: Deploy to Netlify, Vercel, or Firebase Hosting
+
+
 
