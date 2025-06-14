@@ -16,7 +16,7 @@ const MapComponent = () => {
   const [pointA, setPointA] = useState('');
   const [pointB, setPointB] = useState('');
   const [distance, setDistance] = useState('');
-  const [duration, setDuration] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!mapInitialized.current) {
@@ -34,7 +34,8 @@ const MapComponent = () => {
         mapRef.current.remove();
         mapRef.current = null;
         mapInitialized.current = false;
-      }    };
+      }    
+    };
   }, []);
 
   const geocode = async (location) => {
@@ -48,6 +49,10 @@ const MapComponent = () => {
       }
     });
 
+    if (response.data.features.length === 0) {
+      throw new Error(`No results found for "${location}"`);
+    }
+
     const { coordinates } = response.data.features[0].geometry;
     return coordinates; 
   };
@@ -58,9 +63,11 @@ const MapComponent = () => {
       return;
     }
 
+    setLoading(true);
+    setDistance('');
     try {
-      const coordsA = await geocode(pointA);
-      const coordsB = await geocode(pointB);
+      // Parallel geocode calls to speed up
+      const [coordsA, coordsB] = await Promise.all([geocode(pointA), geocode(pointB)]);
 
       const response = await axios.post(
         'https://api.openrouteservice.org/v2/directions/driving-car/geojson',
@@ -79,7 +86,6 @@ const MapComponent = () => {
       const summary = response.data.features[0].properties.summary;
 
       setDistance((summary.distance / 1000).toFixed(2) + ' km');
-      setDuration((summary.duration / 60).toFixed(1) + ' min');
 
       if (routeLayerRef.current) mapRef.current.removeLayer(routeLayerRef.current);
       if (startMarkerRef.current) mapRef.current.removeLayer(startMarkerRef.current);
@@ -115,7 +121,9 @@ const MapComponent = () => {
       setTimeout(() => mapRef.current.invalidateSize(), 200);
     } catch (error) {
       console.error('Routing error:', error);
-      alert('Failed to calculate route');
+      alert(error.message || 'Failed to calculate route');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,7 +131,7 @@ const MapComponent = () => {
     setPointA('');
     setPointB('');
     setDistance('');
-    setDuration('');
+    setLoading(false);
     if (routeLayerRef.current) mapRef.current.removeLayer(routeLayerRef.current);
     if (startMarkerRef.current) mapRef.current.removeLayer(startMarkerRef.current);
     if (endMarkerRef.current) mapRef.current.removeLayer(endMarkerRef.current);
@@ -140,25 +148,30 @@ const MapComponent = () => {
           value={pointA}
           placeholder="Enter starting point"
           onChange={(e) => setPointA(e.target.value)}
+          disabled={loading}
         />
         <input
           type="text"
           value={pointB}
           placeholder="Enter destination"
           onChange={(e) => setPointB(e.target.value)}
+          disabled={loading}
         />
-        <button onClick={calculateRoute}>Calculate Route</button>
-        <button onClick={clearRoute}>Clear</button>
+        <button onClick={calculateRoute} disabled={loading}>
+          {loading ? 'Calculating...' : 'Calculate Route'}
+        </button>
+        <button onClick={clearRoute} disabled={loading}>
+          Clear
+        </button>
       </div>
 
-      {distance && duration && (
+      {distance && (
         <div className="info">
           <p><strong>Distance:</strong> {distance}</p>
-          <p><strong>Duration:</strong> {duration}</p>
         </div>
       )}
 
-      <div id="map"></div>
+      <div id="map" style={{ height: '500px', marginTop: '10px' }}></div>
     </div>
   );
 };
